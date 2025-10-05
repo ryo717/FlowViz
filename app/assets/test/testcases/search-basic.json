@@ -1,0 +1,10 @@
+{
+  "id": "search-basic",
+  "type": "search",
+  "description": "ラベルの部分一致でノードを検出する",
+  "input": "graph LR\nStart[Start Node] --> Process[Process Step]\nProcess --> End[End Node]",
+  "query": "Process",
+  "expected": {
+    "id": "Process"
+  }
+}

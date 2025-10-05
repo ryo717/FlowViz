@@ -1,0 +1,7 @@
+[
+  "parser-basic.json",
+  "parser-cycle.json",
+  "highlight-basic.json",
+  "export-csv.json",
+  "search-basic.json"
+]

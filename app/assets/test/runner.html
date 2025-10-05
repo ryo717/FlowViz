@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>FlowViz Test Runner</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self';" />
+  <style>
+    body { font-family: "Segoe UI", sans-serif; margin: 2rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #d1d5db; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #111827; color: #fff; }
+    .pass { color: #16a34a; font-weight: 600; }
+    .fail { color: #dc2626; font-weight: 600; }
+    #summary { margin-top: 1rem; font-weight: 600; }
+    button { padding: 0.4rem 0.75rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>FlowViz Test Runner</h1>
+  <p>このページは FlowViz のブラウザテストを実行します。</p>
+  <div id="summary">準備中...</div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>説明</th>
+        <th>結果</th>
+        <th>メッセージ</th>
+      </tr>
+    </thead>
+    <tbody id="results"></tbody>
+  </table>
+  <button id="download-report" type="button" hidden>レポートをダウンロード</button>
+
+  <script src="../js/vendor/d3.v7.min.js"></script>
+  <script src="../js/parser.js"></script>
+  <script src="../js/graph-model.js"></script>
+  <script src="../js/highlight.js"></script>
+  <script>
+    async function run() {
+      const response = await fetch('testcases/index.json');
+      const files = await response.json();
+      const table = document.getElementById('results');
+      const results = [];
+
+      for (const file of files) {
+        const testcase = await (await fetch(`testcases/${file}`)).json();
+        const outcome = executeTest(testcase);
+        results.push(outcome);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${testcase.id}</td>
+          <td>${testcase.description}</td>
+          <td class="${outcome.success ? 'pass' : 'fail'}">${outcome.success ? 'PASS' : 'FAIL'}</td>
+          <td>${outcome.message ?? ''}</td>`;
+        table.appendChild(tr);
+      }
+
+      const passed = results.filter((r) => r.success).length;
+      const summary = document.getElementById('summary');
+      summary.textContent = `${passed}/${results.length} 件成功`;
+
+      const downloadButton = document.getElementById('download-report');
+      downloadButton.hidden = false;
+      downloadButton.addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify({ generatedAt: new Date().toISOString(), results }, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = 'test-report.json';
+        anchor.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+
+    function executeTest(testcase) {
+      try {
+        const parser = new FlowMDParser();
+        const graph = parser.parse(testcase.input);
+        const model = new GraphModel(graph);
+        if (testcase.type === 'parser') {
+          const { nodeCount, edgeCount, orientation } = testcase.expected;
+          if (model.nodes.length !== nodeCount) {
+            return { success: false, message: `期待ノード数 ${nodeCount} / 実際 ${model.nodes.length}` };
+          }
+          if (model.edges.length !== edgeCount) {
+            return { success: false, message: `期待エッジ数 ${edgeCount} / 実際 ${model.edges.length}` };
+          }
+          if (graph.meta.orientation !== orientation) {
+            return { success: false, message: `期待方向 ${orientation} / 実際 ${graph.meta.orientation}` };
+          }
+          const warningsContains = testcase.expected.warningsContains ?? [];
+          if (warningsContains.length) {
+            const messages = (graph.meta.warnings ?? []).map((w) => w.message ?? '');
+            for (const expectedWarning of warningsContains) {
+              if (!messages.some((message) => message.includes(expectedWarning))) {
+                return { success: false, message: `警告「${expectedWarning}」が見つかりません` };
+              }
+            }
+          }
+          return { success: true };
+        }
+        if (testcase.type === 'highlight') {
+          const engine = new HighlightEngine(model);
+          const result = engine.downstream(testcase.target);
+          const expectedNodes = new Set(testcase.expected.highlightedNodes);
+          for (const node of expectedNodes) {
+            if (!result.nodes.has(node)) {
+              return { success: false, message: `${node} がハイライトされていない` };
+            }
+          }
+          if (result.edges.size !== testcase.expected.edgeCount) {
+            return { success: false, message: `期待エッジ数 ${testcase.expected.edgeCount} / 実際 ${result.edges.size}` };
+          }
+          return { success: true };
+        }
+        if (testcase.type === 'csv') {
+          if (model.edges.length + 1 !== testcase.expected.rows) {
+            return { success: false, message: `CSV行数 ${testcase.expected.rows} に一致しません` };
+          }
+          return { success: true };
+        }
+        if (testcase.type === 'search') {
+          const query = testcase.query;
+          const match = model.nodes.find((n) => n.id === query || (n.label ?? '').includes(query));
+          if (match && match.id === testcase.expected.id) {
+            return { success: true };
+          }
+          return { success: false, message: `検索クエリ ${query} は期待ノード ${testcase.expected.id} に一致しません` };
+        }
+        return { success: false, message: '未知のテストタイプ' };
+      } catch (error) {
+        return { success: false, message: error.message };
+      }
+    }
+
+    run();
+  </script>
+</body>
+</html>

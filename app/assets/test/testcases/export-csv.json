@@ -1,0 +1,9 @@
+{
+  "id": "export-csv",
+  "type": "csv",
+  "description": "エッジをCSV化した際の行数を確認",
+  "input": "flowchart TB\nX --> Y\nY --> Z",
+  "expected": {
+    "rows": 3
+  }
+}
