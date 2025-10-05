@@ -32,7 +32,7 @@ RenderAgent	D3描画制御	/app/assets/js/viewer.js	性能閾値
 HighlightAgent	下流DFS/BFS処理	/app/assets/js/highlight.js	T01〜T03合格
 ExportAgent	CSV/PNG出力	/app/assets/js/export.js	E01〜E02通過
 UITestAgent	テスト生成・検証	/app/assets/test/	100%合格
-LauncherAgent	Pythonランチャ生成	/launcher/	CSPヘッダ検証
+LauncherAgent	Pythonランチャ生成	/launcher/	CSPヘッダ検証・PyInstaller同梱時のDATA_ROOT/PROJECT_ROOT解決確認
 PackAgent	exeビルド	/scripts/	zip構成整合
 
 各Agentは明確な責務を持ち、生成物は上表の出力先に配置すること。
@@ -46,7 +46,7 @@ SpecAgent → ParserAgent → HighlightAgent → RenderAgent → ExportAgent →
 	1.	SpecAgent が要件定義を解析し、仕様の差分を抽出。
 	2.	担当エージェントがJS/Pythonモジュールを生成。
 	3.	UITestAgent が /app/assets/test/testcases/*.json に基づき検証。
-	4.	LauncherAgent が HTTPサーバとCSP設定を確認。
+	4.	LauncherAgent が HTTPサーバとCSP設定を確認し、PyInstallerバンドルでのDATA_ROOT/PROJECT_ROOT解決と FlowViz.exe --selftest を実行。
 	5.	PackAgent が exe 化とZIP生成を実施。
 
 ⸻
@@ -64,6 +64,9 @@ scripts/selftest.bat && pyinstaller FlowViz.spec
 
 # 配布ZIP生成
 scripts/build.bat → FlowViz-<ver>-win-x64.zip
+
+# exe自己診断（PyInstaller）
+dist/FlowViz.exe --selftest
 
 
 ⸻

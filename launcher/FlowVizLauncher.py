@@ -12,15 +12,21 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Dict, List, Optional, Set
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-APP_DIR = BASE_DIR / "app"
-CONFIG_PATH = BASE_DIR / "config" / "appsettings.json"
-LOG_DIR = BASE_DIR / "logs"
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    DATA_ROOT = Path(sys._MEIPASS)
+    PROJECT_ROOT = Path(sys.executable).resolve().parent
+else:
+    DATA_ROOT = Path(__file__).resolve().parent.parent
+    PROJECT_ROOT = DATA_ROOT
+
+APP_DIR = DATA_ROOT / "app"
+CONFIG_PATH = DATA_ROOT / "config" / "appsettings.json"
+LOG_DIR = PROJECT_ROOT / "logs"
 APP_LOG_PATH = LOG_DIR / "app.log"
-TEST_DIR = BASE_DIR / "app" / "assets" / "test"
+TEST_DIR = APP_DIR / "assets" / "test"
 TEST_REPORT = LOG_DIR / "test-report.json"
 
-LOG_DIR.mkdir(exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 LOGGER = logging.getLogger("flowviz")
 if not LOGGER.handlers:
