@@ -1,0 +1,3 @@
+# 🧠 FlowViz AGENTS.MD（for GPT-CLI / Codex）
+
+...（省略: 前述のAGENTS内容）...
