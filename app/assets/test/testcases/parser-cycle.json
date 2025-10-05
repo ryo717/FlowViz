@@ -1,0 +1,12 @@
+{
+  "id": "parser-cycle",
+  "type": "parser",
+  "description": "循環依存が警告として検出されることを確認",
+  "input": "graph TD\nA --> B\nB --> C\nC --> A",
+  "expected": {
+    "nodeCount": 3,
+    "edgeCount": 3,
+    "orientation": "TD",
+    "warningsContains": ["Cycle detected: A -> B -> C -> A"]
+  }
+}

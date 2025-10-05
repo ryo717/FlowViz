@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:;" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FlowViz Viewer</title>
+  <link rel="stylesheet" href="assets/css/viewer.css" />
+</head>
+<body>
+  <header>
+    <h1>FlowViz</h1>
+    <div class="toolbar">
+      <label for="flowmd-input" class="button">
+        <button type="button" id="load-btn">FlowMD読込</button>
+        <input id="flowmd-input" type="file" accept=".md,.flowmd,.txt" />
+      </label>
+      <button type="button" id="export-csv">CSV出力</button>
+      <button type="button" id="export-png">PNG出力</button>
+      <button type="button" id="reset-btn" class="secondary">リセット</button>
+    </div>
+  </header>
+  <main>
+    <aside class="sidebar">
+      <div class="controls">
+        <label for="search-box">ノード検索</label>
+        <input type="search" id="search-box" placeholder="ノードIDまたはラベル" />
+        <button type="button" id="search-btn" class="secondary">検索</button>
+      </div>
+      <div>
+        <label for="flowmd-editor">FlowMD ソース</label>
+        <textarea id="flowmd-editor" spellcheck="false"></textarea>
+      </div>
+      <div class="status-line">
+        <span id="status-text">ファイル未読込</span>
+        <span id="node-count" class="badge">0 ノード</span>
+      </div>
+      <div>
+        <button type="button" id="run-editor" class="secondary">エディタから描画</button>
+      </div>
+    </aside>
+    <section class="canvas-container">
+      <svg id="graph"></svg>
+      <div id="toast" class="toast"></div>
+    </section>
+  </main>
+  <script src="assets/js/vendor/d3.v7.min.js"></script>
+  <script src="assets/js/parser.js"></script>
+  <script src="assets/js/graph-model.js"></script>
+  <script src="assets/js/highlight.js"></script>
+  <script src="assets/js/export.js"></script>
+  <script src="assets/js/viewer.js"></script>
+</body>
+</html>

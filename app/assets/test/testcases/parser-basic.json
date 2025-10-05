@@ -1,0 +1,11 @@
+{
+  "id": "parser-basic",
+  "type": "parser",
+  "description": "graph TD を解析してノード数と方向を確認",
+  "input": "graph TD\nA[Start] --> B[Process]\nB --> C[Done]",
+  "expected": {
+    "nodeCount": 3,
+    "edgeCount": 2,
+    "orientation": "TD"
+  }
+}

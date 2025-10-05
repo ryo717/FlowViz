@@ -1,0 +1,11 @@
+{
+  "id": "highlight-basic",
+  "type": "highlight",
+  "description": "ノード選択で下流ノード集合を算出",
+  "input": "graph LR\nA --> B\nA --> C\nC --> D",
+  "target": "A",
+  "expected": {
+    "highlightedNodes": ["A", "B", "C", "D"],
+    "edgeCount": 3
+  }
+}
