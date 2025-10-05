@@ -23,12 +23,12 @@ FlowViz.exe              # ビューアを起動（既定ブラウザ）
 - `config/` : 起動設定
 
 ## サンプルの表示手順
-1. リポジトリ直下で `python -m http.server 8000 --directory app` を実行して簡易サーバーを立ち上げます。
-2. ブラウザで `http://127.0.0.1:8000/viewer.html` を開きます。
+1. python 3.13以上必須。
+2. リポジトリ直下で `python launcher/FlowVizLauncher.py` を実行するとブラウザアプリが立ち上がります。
 3. 左側の FlowMD エディタに `samples/demo-large.md` の内容を貼り付け、「エディタから描画」を押下します。
 4. ノードが描画されたら、ツールバーから PNG/CSV のエクスポートやノード検索を試せます。
 
-`FlowVizLauncher.py` を利用する場合は `python launcher/FlowVizLauncher.py` で同様にビューアを起動できます。
+> 本バージョンではコードブロックを認識しません。mdファイルのmermaidコードブロックを除いた、プレーンなmermaid記法をペーストしてください。
 
 ## ライセンス
 MIT License
